@@ -1,70 +1,117 @@
-# Getting Started with Create React App
+Customer Feedback Management System
+Overview
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+The Customer Feedback Management System is a full-stack web application designed to collect and manage customer feedback efficiently.
+It allows users to submit feedback along with ratings, comments, and product details, and provides analytical insights such as total feedback count, average ratings, and per-day submissions.
 
-## Available Scripts
+This system helps businesses understand customer satisfaction trends and respond effectively to feedback.
 
-In the project directory, you can run:
+Features
 
-### `npm start`
+Add new customer feedback with name, rating, comment, product, and response fields.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+Filter feedbacks to display only high ratings (≥ 4).
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+View key statistics such as:
 
-### `npm test`
+Total feedbacks submitted
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Count of high-rated feedbacks
 
-### `npm run build`
+Feedbacks per day
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+JWT-based authentication and secure user session management.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Fully responsive design with a modern dashboard interface.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Integration between frontend and backend for real-time data updates.
 
-### `npm run eject`
+Tech Stack
+Layer	Technology
+Frontend	React.js, Axios, Bootstrap, Custom CSS
+Backend	Node.js, Express.js
+Database	MySQL
+Authentication	JSON Web Token (JWT)
+Tools	Visual Studio Code, Git, npm
+Project Structure
+feedback-system/
+│
+├── backend/                  # Node.js + Express Backend
+│   ├── server.js
+│   ├── routes/
+│   ├── models/
+│   ├── controllers/
+│   └── package.json
+│
+├── frontend/                 # React Frontend
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── App.js
+│   │   └── DashboardPage.js
+│   ├── public/
+│   ├── package.json
+│
+└── README.md
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+Installation and Setup
+1. Clone the Repository
+git clone https://github.com/deepakm-07/feedback-system.git
+cd feedback-system
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+2. Backend Setup
+cd backend
+npm install
+npm start
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+The backend will start on:
+👉 http://localhost:5000
 
-## Learn More
+Make sure your MySQL database is running and configured properly in your backend connection file.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+3. Frontend Setup
+cd ../frontend
+npm install
+npm start
 
-To learn React, check out the [React documentation](https://reactjs.org/).
 
-### Code Splitting
+The frontend will start on:
+👉 http://localhost:3000
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+API Endpoints
+Method	Endpoint	Description
+GET	/feedbacks	Fetch all feedbacks
+POST	/feedbacks	Add a new feedback
+POST	/login	Authenticate user
+POST	/register	Register a new user
+How It Works
 
-### Analyzing the Bundle Size
+User logs in to access the dashboard.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+User submits feedback (customer name, rating, comment, product, and optional response).
 
-### Making a Progressive Web App
+The backend validates the data and stores it in MySQL.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+The dashboard displays all feedbacks with filtering and sorting options.
 
-### Advanced Configuration
+Statistics are automatically updated in real-time when new feedbacks are added.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+Future Enhancements
 
-### Deployment
+Edit and delete feedback functionalities.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+Data visualization with charts for better insights.
 
-### `npm run build` fails to minify
+Export feedback data to Excel or PDF.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Email or SMS notifications for new feedback.
+
+Multi-role system (Admin/User).
+
+Author
+
+Deepak M
+Full Stack Developer (MERN Stack)
+SDLC Namakkal Graduate
+GitHub: https://github.com/deepakm-07
