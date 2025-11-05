@@ -1,35 +1,66 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import "./DashboardPage.css";
 
 export default function DashboardPage({ user, setUser }) {
   const [feedbacks, setFeedbacks] = useState([]);
-  const [filteredFeedbacks, setFilteredFeedbacks] = useState([]); 
+  const [filteredFeedbacks, setFilteredFeedbacks] = useState([]);
   const [newFeedback, setNewFeedback] = useState({
     customer_name: "",
     rating: "",
     comment: "",
     product: "",
   });
+  const [editingFeedback, setEditingFeedback] = useState(null);
+  const formRef = useRef(null); // ref for scrolling
 
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  // Fetch all feedbacks
   const fetchFeedbacks = async () => {
     try {
       const res = await axios.get("http://localhost:5000/feedbacks", {
         headers: { Authorization: `Bearer ${user.token}` },
       });
       setFeedbacks(res.data);
-      setFilteredFeedbacks(res.data); 
+      setFilteredFeedbacks(res.data);
     } catch (err) {
       console.error("Fetch Feedbacks Error:", err);
       alert("Failed to fetch feedbacks. Check backend logs.");
     }
   };
 
-  useEffect(() => {
-    if (user?.token) fetchFeedbacks();
-  }, [user]);
+useEffect(() => {
+  if (user?.token) fetchFeedbacks();
+// eslint-disable-next-line react-hooks/exhaustive-deps
+}, [user]);
 
-  const addFeedback = async () => {
+  // Edit button handler
+  const handleEdit = (feedback) => {
+    setEditingFeedback(feedback);
+    setNewFeedback({
+      customer_name: feedback.customer_name,
+      rating: feedback.rating,
+      comment: feedback.comment,
+      product: feedback.product,
+    });
+    // Scroll to form
+    if (formRef.current) {
+      formRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
+  // Add or Update feedback
+  const handleSubmit = async () => {
     try {
       if (
         !newFeedback.customer_name ||
@@ -38,20 +69,47 @@ export default function DashboardPage({ user, setUser }) {
         newFeedback.rating < 1 ||
         newFeedback.rating > 5
       ) {
-        return alert("Invalid input: rating must be 1–5 and all fields required.");
+        return alert(
+          "Invalid input: rating must be 1–5 and all fields required."
+        );
       }
 
-      await axios.post(
-        "http://localhost:5000/feedbacks",
-        { ...newFeedback, rating: parseInt(newFeedback.rating) },
-        { headers: { Authorization: `Bearer ${user.token}` } }
-      );
+      if (editingFeedback) {
+        // Update feedback
+        await axios.put(
+          `http://localhost:5000/feedbacks/${editingFeedback.id}`,
+          { ...newFeedback, rating: parseInt(newFeedback.rating) },
+          { headers: { Authorization: `Bearer ${user.token}` } }
+        );
+        setEditingFeedback(null);
+      } else {
+        // Add new feedback
+        await axios.post(
+          "http://localhost:5000/feedbacks",
+          { ...newFeedback, rating: parseInt(newFeedback.rating) },
+          { headers: { Authorization: `Bearer ${user.token}` } }
+        );
+      }
 
       setNewFeedback({ customer_name: "", rating: "", comment: "", product: "" });
       fetchFeedbacks();
     } catch (err) {
-      console.error("Add Feedback Error:", err);
-      alert("Failed to add feedback.");
+      console.error("Add/Edit Feedback Error:", err);
+      alert("Failed to add/edit feedback.");
+    }
+  };
+
+  // Delete feedback
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this feedback?")) return;
+    try {
+      await axios.delete(`http://localhost:5000/feedbacks/${id}`, {
+        headers: { Authorization: `Bearer ${user.token}` },
+      });
+      fetchFeedbacks();
+    } catch (err) {
+      console.error("Delete Feedback Error:", err);
+      alert("Failed to delete feedback.");
     }
   };
 
@@ -60,10 +118,12 @@ export default function DashboardPage({ user, setUser }) {
     localStorage.removeItem("user");
   };
 
+  // Stats
   const totalFeedback = feedbacks.length;
   const rating4plus = feedbacks.filter((f) => f.rating >= 4).length;
   const perDayCount = feedbacks.reduce((acc, f) => {
-    acc[f.date] = (acc[f.date] || 0) + 1;
+    const day = new Date(f.date).toLocaleDateString("en-IN");
+    acc[day] = (acc[day] || 0) + 1;
     return acc;
   }, {});
 
@@ -104,8 +164,8 @@ export default function DashboardPage({ user, setUser }) {
         </div>
       </div>
 
-      <div className="form-card">
-        <h5>Add Feedback</h5>
+      <div className="form-card" ref={formRef}>
+        <h5>{editingFeedback ? "Edit Feedback" : "Add Feedback"}</h5>
         <input
           className="form-control"
           placeholder="Customer Name"
@@ -139,8 +199,8 @@ export default function DashboardPage({ user, setUser }) {
             setNewFeedback({ ...newFeedback, product: e.target.value })
           }
         />
-        <button className="btn btn-success mt-2" onClick={addFeedback}>
-          Add Feedback
+        <button className="btn btn-success mt-2" onClick={handleSubmit}>
+          {editingFeedback ? "Update Feedback" : "Add Feedback"}
         </button>
       </div>
 
@@ -161,16 +221,31 @@ export default function DashboardPage({ user, setUser }) {
             <th>Rating</th>
             <th>Comment</th>
             <th>Product</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
           {filteredFeedbacks.map((f) => (
-            <tr key={f._id || f.date + f.customer_name}>
-              <td>{f.date}</td>
+            <tr key={f.id || f.date + f.customer_name}>
+              <td>{formatDate(f.date)}</td>
               <td>{f.customer_name}</td>
               <td>{f.rating}</td>
               <td>{f.comment}</td>
               <td>{f.product}</td>
+              <td>
+                <button
+                  className="btn btn-warning btn-sm me-2"
+                  onClick={() => handleEdit(f)}
+                >
+                  Edit
+                </button>
+                <button
+                  className="btn btn-danger btn-sm"
+                  onClick={() => handleDelete(f.id)}
+                >
+                  Delete
+                </button>
+              </td>
             </tr>
           ))}
         </tbody>
